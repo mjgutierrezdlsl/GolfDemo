@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class LineManager : MonoBehaviour
 {
-    [SerializeField] float _minLength = 1f;
+    // [SerializeField] float _minLength = 1f;
     [SerializeField] LineWall _linePrefab;
     [SerializeField] BallController _ball;
     public readonly List<LineWall> LineWalls = new();
@@ -16,6 +16,13 @@ public class LineManager : MonoBehaviour
     private void OnDisable()
     {
         _ball.OnMouseReleased -= OnMouseReleased;
+    }
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            ClearWalls();
+        }
     }
     private void OnMouseReleased(Vector2 start, Vector2 end)
     {

@@ -26,33 +26,34 @@ public class GameManager : MonoBehaviour
 
     private void OnWallSpawned(LineWall wall)
     {
-        SpawnIfNearWall(wall);
-    }
-
-    private void SpawnIfNearWall(LineWall wall)
-    {
-        if (!wall) return;
-        var start = wall.LineRenderer.GetPosition(0);
-        var end = wall.LineRenderer.GetPosition(1);
-        var magnitude = (end - start).magnitude;
-        print($"{_hole.transform.position}|{start}|{end}");
-        for (int i = 0; i < wall.LineRenderer.positionCount; i++)
+        var colliders = Physics2D.OverlapCircleAll(_hole.transform.position, 1f);
+        if (colliders != null)
         {
-            if (Vector2.Distance(_hole.transform.position, wall.LineRenderer.GetPosition(i)) < magnitude)
+            foreach (var collider in colliders)
             {
-                _hole.transform.position = GetRandomPosition();
+                if (collider.TryGetComponent<LineWall>(out var w))
+                {
+                    _hole.transform.position = GetRandomPosition();
+                }
             }
         }
+        // SpawnIfNearWall(wall);
     }
 
     private void SetObjectPositions()
     {
         _ball.SetPosition(GetRandomPosition());
         _hole.transform.position = GetRandomPosition();
-        var wall = Physics2D.OverlapCircle(_hole.transform.position, 1f);
-        if (wall != null)
+        var colliders = Physics2D.OverlapCircleAll(_hole.transform.position, 1f);
+        if (colliders != null)
         {
-            SpawnIfNearWall(wall.GetComponent<LineWall>());
+            foreach (var collider in colliders)
+            {
+                if (collider.TryGetComponent<LineWall>(out var w))
+                {
+                    _hole.transform.position = GetRandomPosition();
+                }
+            }
         }
     }
 
