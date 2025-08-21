@@ -1,18 +1,21 @@
 using System;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class BallController : MonoBehaviour
 {
     [SerializeField] float _maxLength = 2f;
     [SerializeField] float _strikeForce = 10f;
     [SerializeField] LineRenderer _lineRenderer;
+    [SerializeField] TrailRenderer _trailRenderer;
     [SerializeField] ParticleSystem _hitEffect;
 
     Camera _camera;
     Rigidbody2D _rigidbody;
 
     Vector2 _mouseStartPosition, _mouseEndPosition;
+
+    public event Action OnHoleScored;
+    public event Action<Vector2, Vector2> OnMouseReleased;
 
     private void Awake()
     {
@@ -52,13 +55,22 @@ public class BallController : MonoBehaviour
         {
             _rigidbody.AddForce(direction * _strikeForce, ForceMode2D.Impulse);
             _lineRenderer.gameObject.SetActive(false);
+            OnMouseReleased?.Invoke(_mouseStartPosition, _mouseEndPosition);
         }
     }
+
+    public void SetPosition(Vector2 position)
+    {
+        transform.position = position;
+        _trailRenderer.gameObject.SetActive(true);
+    }
+
     public void ScoreHole()
     {
         var particles = Instantiate(_hitEffect, transform.position, Quaternion.identity);
         particles.Play();
-        Destroy(gameObject);
+        _trailRenderer.gameObject.SetActive(false);
+        OnHoleScored?.Invoke();
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
